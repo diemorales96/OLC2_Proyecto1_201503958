@@ -30,7 +30,9 @@ reservadas = {
     'in'            : 'RIN',
     'parse'         : 'RPARSE',
     'break'         : 'RBREAK',
-    'continue'      : 'RCONTINUE'
+    'continue'      : 'RCONTINUE',
+    'function'      : 'RFUNCTION',
+    'return'        : 'RRETURN'
 }
 
 tokens = [
@@ -169,6 +171,10 @@ from Instrucciones.For import For
 from Expresiones.Casteo import Casteo
 from Instrucciones.Break import Break
 from Instrucciones.Continue import Continue
+from Instrucciones.Return import Return
+from Instrucciones.Funcion import Funcion
+from Instrucciones.Llamada import Llamada
+
 
 precedence = (
     ('left','OR'),
@@ -207,7 +213,10 @@ def p_instruccion(t):
                         | while_instr finins
                         | for_instr finins
                         | break_instr finins
-                        | continue_instr
+                        | continue_instr finins
+                        | funcion_instr finins
+                        | return_instr finins
+                        | llamada_instr finins
     '''
     t[0] = t[1]
 #Fin de la instruccion (termina con ;)
@@ -310,6 +319,55 @@ def p_declaracion_completa(t):
     '''
     t[0] = Declaracion(t[1],t.lineno(1),find_column(input,t.slice[1]),t[3],t[5])
 
+#Funciones
+def p_funcion1(t):
+    'funcion_instr    : RFUNCTION ID PARA parametros PARC instrucciones REND'
+    t[0] = Funcion(t[2],t[4],t[6],t.lineno(1),find_column(input,t.slice[1]))
+
+def p_funcion_2(t) :
+    'funcion_instr     : RFUNCTION ID PARA PARC instrucciones REND'
+    t[0] = Funcion(t[2],[], t[5], t.lineno(1), find_column(input, t.slice[1]))
+#Parametros
+def p_parametros_1(t):
+    'parametros     : parametros COMA parametro'
+    t[1].append(t[3])
+    t[0] = t[1]
+
+def p_parametros_2(t):
+    'parametros      : parametro'
+    t[0] = [t[1]]
+#Parametro
+def p_parametro(t):
+    'parametro      : ID DOBLEDPUNTOS tipo'
+    t[0] = {'tipo':t[3],'identificador':t[1]}
+#Return
+def p_return(t) :
+    'return_instr     : RRETURN expresion'
+    t[0] = Return(t[2], t.lineno(1), find_column(input, t.slice[1]))
+#Llamadas
+def p_llamada1(t) :
+    'llamada_instr     : ID PARA PARC'
+    t[0] = Llamada(t[1],[], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_llamada2(t) :
+    'llamada_instr     : ID PARA parametros_llamada PARC'
+    t[0] = Llamada(t[1], t[3], t.lineno(1), find_column(input, t.slice[1]))
+#Parametros
+def p_parametrosLL_1(t) :
+    'parametros_llamada     : parametros_llamada COMA parametro_llamada'
+    t[1].append(t[3])
+    t[0] = t[1]
+#Parametro
+def p_parametrosLL_2(t) :
+    'parametros_llamada    : parametro_llamada'
+    t[0] = [t[1]]
+
+
+def p_parametroLL(t) :
+    'parametro_llamada     : expresion'
+    t[0] = t[1]
+
+
 #Tipos de variables
 def p_tipo(t) :
     '''tipo     : RINT
@@ -395,6 +453,8 @@ def p_expresion_agrupacion(t):
     '''
     t[0] = t[2]
 
+
+
 #Otos tipos de expresiones
 def p_expresion_identificador(t):
     '''expresion : ID'''
@@ -447,7 +507,7 @@ def parse(inp) :
     input = inp
     return parser.parse(inp)
 
-f = open("./entrada.txt", "r")
+f = open("./src/entrada.txt", "r")
 entrada = f.read()
 
 from TS.Arbol import Arbol
@@ -460,11 +520,17 @@ ast.setTSglobal(TSGlobal)
 
 for error in errores:
     ast.getExcepciones().append(error)
-    
+
+#Primera pasada para poder guardar las funciones existentes
 for instruccion in ast.getInstrucciones():
-    value = instruccion.interpretar(ast,TSGlobal)
-    if isinstance(value, Excepcion) :
-        ast.getExcepciones().append(value)
-        ast.updateConsola(value.toString())
+    if isinstance(instruccion, Funcion):
+        ast.addFuncion(instruccion)
+#Segunda pasada para realizar todas las acciones excepto las declaraciones de funcones que ya se hicieron en la primera pasada
+for instruccion in ast.getInstrucciones():
+    if not isinstance(instruccion,Funcion):
+        value = instruccion.interpretar(ast,TSGlobal)
+        if isinstance(value, Excepcion) :
+            ast.getExcepciones().append(value)
+            ast.updateConsola(value.toString())
 
 print(ast.getConsola())

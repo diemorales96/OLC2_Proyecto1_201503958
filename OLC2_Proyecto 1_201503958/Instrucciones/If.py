@@ -3,6 +3,8 @@ from TS.Tipo import TIPO
 from TS.Excepcion import Excepcion
 from TS.TablaSimbolos import TablaSimbolos
 from Instrucciones.Break import Break
+from Instrucciones.Continue import Continue
+
 
 class If(Instruccion):
     def __init__(self, condicion,instruccionIf,instruccionesElse,instruccioneselseif, fila, columna):
@@ -26,6 +28,7 @@ class If(Instruccion):
                         tree.getExcepciones().append(result)
                         tree.updateConsola(result.toString())
                     if isinstance(result,Break): return result
+                    if isinstance(result,Continue): return result
             else:
                 if self.instruccionesElseif != None:
                     for instruccion in self.instruccionesElseif:
@@ -37,15 +40,18 @@ class If(Instruccion):
                                     tree.getExcepciones().append(result)
                                     tree.updateConsola(result.toString())
                                 if isinstance(result,Break): return result
+                                if isinstance(result,Continue): return result 
                     if self.instruccionesElse != None:
                         for instr in self.instruccionesElse:
                             result = instr.interpretar(tree,table)
                             if isinstance(result,Excepcion): return result
-                            if isinstance(result,Break): return result    
+                            if isinstance(result,Break): return result
+                            if isinstance(result,Continue): return result     
                 elif self.instruccionesElse != None:
                     for instr in self.instruccionesElse:
                         result = instr.interpretar(tree,table)
                         if isinstance(result,Excepcion): return result
-                        if isinstance(result,Break): return result       
+                        if isinstance(result,Break): return result
+                        if isinstance(result,Continue): return result        
         else:   
            return Excepcion("Semantico","Tipo d e dato no booleano en If.",self.fila,self.columna) 

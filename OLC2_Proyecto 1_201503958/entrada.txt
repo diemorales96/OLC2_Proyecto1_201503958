@@ -1,8 +1,18 @@
-for i in "Hola"
-    if i == "l"
-        println(parse(String,8)," :D");
-    else
-        println("NOOOOOOOOOOO :(");
-        break;
+x = (3*5)::Int64; # 15
+str = "Saludo";
+
+function ejemplo()
+    str="Ejemplo"; # JOLC hace referencia a la variable global str
+    x = 0; # JOLC crea una nueva variable local
+    x=25;
+    x=50;
+    for i in 1:5
+        x; # Creando variable local.
+        x = i * 2; # Gracias a 'local' no hace referencia a la variable de la línea 6
+        println(x); # imprime: 2 4 6 8 10
     end;
+    println(x); 
 end;
+ejemplo();
+println(x); 
+println(str);

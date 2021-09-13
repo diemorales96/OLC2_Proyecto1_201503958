@@ -30,7 +30,6 @@ class For(Instruccion):
             simbolo = Simbolo(str(self.declaracion), self.expresionizq.tipo,self.arreglo,self.funcion, self.fila, self.columna, valor1)
             result = nTable.setTabla(simbolo)
             if isinstance(result, Excepcion): return result
-            if isinstance(result, Break): return result
             while valor2 >= valor1:
                 nuevaTabla = TablaSimbolos(nTable)
                 for instruccion in self.instrucciones:
@@ -39,11 +38,15 @@ class For(Instruccion):
                         tree.getExcepciones().append(result)
                         tree.updateConsola(result.toString())
                     if isinstance(result,Break): return result
+                    if isinstance(result,Continue): 
+                        valor1 = valor1 + 1
+                        continue 
                 valor1 = valor1 + 1
                 simbolo = Simbolo(str(self.declaracion), self.expresionizq.tipo,self.arreglo,self.funcion, self.fila, self.columna, valor1)
                 res = nuevaTabla.actualizarTabla(simbolo)
                 if isinstance(res, Excepcion): return res
                 if isinstance(result,Break): return result
+                if isinstance(result,Continue): continue 
         else:
             if self.expresioncad != None:
                 cad = self.expresioncad.interpretar(tree,table)
@@ -52,8 +55,7 @@ class For(Instruccion):
                     nTable = TablaSimbolos(table)
                     simbolo = Simbolo(str(self.declaracion), self.expresioncad.tipo,self.arreglo,self.funcion, self.fila, self.columna, "")
                     result = nTable.setTabla(simbolo)
-                    if isinstance(result, Excepcion): return result
-                    if isinstance(result,Break): return result    
+                    if isinstance(result, Excepcion): return result   
                     for cadena in cad:
                         nuevaTabla = TablaSimbolos(nTable)
                         simbolo = Simbolo(str(self.declaracion), self.expresioncad.tipo,self.arreglo,self.funcion, self.fila, self.columna, cadena)
@@ -63,4 +65,5 @@ class For(Instruccion):
                             if isinstance(result,Excepcion):
                                 tree.getExcepciones().append(result)
                                 tree.updateConsola(result.toString())
-                            if isinstance(result,Break): return result         
+                            if isinstance(result,Break): return result
+                            if isinstance(result,Continue): continue          
