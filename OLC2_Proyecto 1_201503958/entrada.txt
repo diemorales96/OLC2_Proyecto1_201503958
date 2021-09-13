@@ -1,8 +1,0 @@
-for i in "Hola"
-    if i == "l"
-        println(parse(String,8)," :D");
-    else
-        println("NOOOOOOOOOOO :(");
-        break;
-    end;
-end;
