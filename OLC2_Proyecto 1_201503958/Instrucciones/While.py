@@ -4,6 +4,8 @@ from TS.TablaSimbolos import TablaSimbolos
 from TS.Tipo import TIPO
 from Instrucciones.Break import Break
 from Instrucciones.Continue import Continue
+from Instrucciones.Declaracion import Declaracion
+from Instrucciones.Return import Return
 
 class While(Instruccion):
     def __init__(self, condicion, instrucciones, fila, columna):
@@ -21,12 +23,15 @@ class While(Instruccion):
                 if bool(condicion) == True:  
                     nuevaTabla = TablaSimbolos(table)      
                     for instruccion in self.instrucciones:
+                        if isinstance(instruccion,Declaracion):
+                            instruccion.local = True
                         result = instruccion.interpretar(tree, nuevaTabla) 
                         if isinstance(result, Excepcion) :
                             tree.getExcepciones().append(result)
                             tree.updateConsola(result.toString())
                         if isinstance(result, Break): return result
                         if isinstance(result, Continue): break
+                        if isinstance(result,Return): return result 
                 else:
                     break
             else:

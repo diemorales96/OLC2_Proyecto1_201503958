@@ -5,6 +5,8 @@ from TS.Simbolo import Simbolo
 from TS.Tipo import TIPO
 from Instrucciones.Break import Break
 from Instrucciones.Continue import Continue
+from Instrucciones.Declaracion import Declaracion
+from Instrucciones.Return import Return 
 
 class For(Instruccion):
     def __init__(self,declaracion, expresionizq,expresionder,instrucciones,expresioncad,fila, columna):
@@ -30,9 +32,11 @@ class For(Instruccion):
             simbolo = Simbolo(str(self.declaracion), self.expresionizq.tipo,self.arreglo,self.funcion, self.fila, self.columna, valor1)
             result = nTable.setTabla(simbolo)
             if isinstance(result, Excepcion): return result
+            nuevaTabla = TablaSimbolos(nTable)
             while valor2 >= valor1:
-                nuevaTabla = TablaSimbolos(nTable)
                 for instruccion in self.instrucciones:
+                    if isinstance(instruccion,Declaracion):
+                        instruccion.local = True
                     result = instruccion.interpretar(tree,nuevaTabla)
                     if isinstance(result,Excepcion):
                         tree.getExcepciones().append(result)
@@ -40,13 +44,15 @@ class For(Instruccion):
                     if isinstance(result,Break): return result
                     if isinstance(result,Continue): 
                         valor1 = valor1 + 1
-                        continue 
+                        continue
+                    if isinstance(result,Return): return result 
                 valor1 = valor1 + 1
                 simbolo = Simbolo(str(self.declaracion), self.expresionizq.tipo,self.arreglo,self.funcion, self.fila, self.columna, valor1)
                 res = nuevaTabla.actualizarTabla(simbolo)
                 if isinstance(res, Excepcion): return res
                 if isinstance(result,Break): return result
-                if isinstance(result,Continue): continue 
+                if isinstance(result,Continue): continue
+                if isinstance(result,Return): return result  
         else:
             if self.expresioncad != None:
                 cad = self.expresioncad.interpretar(tree,table)
@@ -56,14 +62,17 @@ class For(Instruccion):
                     simbolo = Simbolo(str(self.declaracion), self.expresioncad.tipo,self.arreglo,self.funcion, self.fila, self.columna, "")
                     result = nTable.setTabla(simbolo)
                     if isinstance(result, Excepcion): return result   
+                    nuevaTabla = TablaSimbolos(nTable)
                     for cadena in cad:
-                        nuevaTabla = TablaSimbolos(nTable)
                         simbolo = Simbolo(str(self.declaracion), self.expresioncad.tipo,self.arreglo,self.funcion, self.fila, self.columna, cadena)
                         res = nuevaTabla.actualizarTabla(simbolo)
                         for instruccion in self.instrucciones:
+                            if isinstance(instruccion,Declaracion):
+                                instruccion.local = True
                             result = instruccion.interpretar(tree,nuevaTabla)
                             if isinstance(result,Excepcion):
                                 tree.getExcepciones().append(result)
                                 tree.updateConsola(result.toString())
                             if isinstance(result,Break): return result
-                            if isinstance(result,Continue): continue          
+                            if isinstance(result,Continue): continue
+                            if isinstance(result,Return): return result           

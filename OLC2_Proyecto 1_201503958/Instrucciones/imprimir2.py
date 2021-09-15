@@ -9,14 +9,19 @@ class Imprimir2(Instruccion):
         self.columna = columna
 
     def interpretar(self, tree, table):
-        value = self.expresion.interpretar(tree, table)  
+        cadena = ""
+        for value in self.expresion:
+            cadena += str(value.interpretar(tree,table))
+            if isinstance(value.interpretar(tree,table),Excepcion):
+                return value.interpretar(tree,table)
 
-        if isinstance(value, Excepcion) :
-            return value
+            if value.tipo == TIPO.ARREGLO:
+                valores = value.interpretar(tree,table)
+                for elemento in valores.get_list_value():
+                    tree.updateConsola(elemento.valor)
+                    return None
 
-        if self.expresion.tipo == TIPO.ARREGLO:
-            return Excepcion("Semantico", "No se puede imprimir un arreglo completo", self.fila, self.columna)
-        elif self.expresion.tipo == TIPO.NULO:
-            return Excepcion("Semantico", "Null pointer, no se puede imprimir tipo NULL", self.fila, self.columna)
-        tree.updateConsola2(value)
+            elif value.tipo == TIPO.NULO:
+                return Excepcion("Semantico", "Null pointer, no se puede imprimir tipo NULL", self.fila, self.columna)
+            tree.updateConsola(cadena)
         return None

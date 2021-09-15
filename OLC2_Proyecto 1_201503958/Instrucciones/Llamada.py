@@ -17,7 +17,7 @@ class Llamada(Instruccion):
         self.funcion = True
 
     def interpretar(self, tree, table):
-        result = tree.getFuncion(self.nombre.lower()) 
+        result = tree.getFuncion(self.nombre) 
         if result == None: 
             return Excepcion("Semantico", "NO SE ENCONTRO LA FUNCION: " + self.nombre, self.fila, self.columna)
         
@@ -27,14 +27,14 @@ class Llamada(Instruccion):
            for expresion in self.parametros: 
                 resultExpresion = expresion.interpretar(tree, table)
                 if isinstance(resultExpresion, Excepcion): return resultExpresion
-                if (result.parametros[contador]['identificador'].lower() == "length##param1") or (result.parametros[contador]['identificador'].lower() == "truncate##param1")or (result.parametros[contador]['identificador'].lower() == "round##param1")or (result.parametros[contador]['identificador'].lower() == "typeof##param1"):
+                if (result.parametros[contador]['identificador'] == "truncate##param1")or (result.parametros[contador]['identificador'] == "typeof##param1") or (result.parametros[contador]['identificador']=="log10##param1")or (result.parametros[contador]['identificador']=="sin##param1")or (result.parametros[contador]['identificador']=="cos##param1")or (result.parametros[contador]['identificador']=="tan##param1")or (result.parametros[contador]['identificador']=="sqrt##param1")or (result.parametros[contador]['identificador']=="float##param1"):
                     result.parametros[contador]["tipo"] = expresion.tipo
                 if result.parametros[contador]["tipo"] == expresion.tipo or result.parametros[contador]["tipo"] == TIPO.ARREGLO: 
                     if result.parametros[contador]['tipo'] == TIPO.ARREGLO:
                         self.arreglo = True
-                        simbolo = Simbolo(str(result.parametros[contador]['identificador']).lower(),expresion.tipo,self.arreglo,self.funcion,self.fila,self.columna,resultExpresion)
+                        simbolo = Simbolo(str(result.parametros[contador]['identificador']),expresion.tipo,self.arreglo,self.funcion,self.fila,self.columna,resultExpresion)
                     else:
-                        simbolo = Simbolo(str(result.parametros[contador]['identificador']).lower(), result.parametros[contador]['tipo'],self.arreglo,self.funcion, self.fila, self.columna, resultExpresion)
+                        simbolo = Simbolo(str(result.parametros[contador]['identificador']), result.parametros[contador]['tipo'],self.arreglo,self.funcion, self.fila, self.columna, resultExpresion)
                     resultTabla = nuevaTabla.setTabla(simbolo)
                     if isinstance(resultTabla, Excepcion): return resultTabla
                  

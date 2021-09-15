@@ -4,6 +4,8 @@ from Abstract.Instruccion import Instruccion
 from TS.Excepcion import Excepcion
 from TS.TablaSimbolos import TablaSimbolos
 from Instrucciones.Break import Break
+from Instrucciones.Declaracion import Declaracion
+
 
 class Funcion(Instruccion):
     def __init__(self, nombre, parametros, instrucciones, fila, columna):
@@ -17,6 +19,8 @@ class Funcion(Instruccion):
     def interpretar(self, tree, table):
         nuevaTabla = TablaSimbolos(table) 
         for instruccion in self.instrucciones:
+            if isinstance(instruccion,Declaracion):
+                instruccion.local = True
             value = instruccion.interpretar(tree,nuevaTabla)
             if isinstance(value, Excepcion) :
                 tree.getExcepciones().append(value)

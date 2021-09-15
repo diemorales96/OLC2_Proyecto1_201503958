@@ -4,7 +4,8 @@ from TS.Excepcion import Excepcion
 from TS.TablaSimbolos import TablaSimbolos
 from Instrucciones.Break import Break
 from Instrucciones.Continue import Continue
-
+from Instrucciones.Declaracion import Declaracion
+from Instrucciones.Return import Return
 
 class If(Instruccion):
     def __init__(self, condicion,instruccionIf,instruccionesElse,instruccioneselseif, fila, columna):
@@ -14,6 +15,7 @@ class If(Instruccion):
         self.instruccionesElseif = instruccioneselseif
         self.fila = fila
         self.columna = columna
+        self.local = None
 
     def interpretar(self, tree, table):
         condicion = self.condicion.interpretar(tree,table)
@@ -23,35 +25,50 @@ class If(Instruccion):
             if bool(condicion) == True:
                 nuevaTabla = TablaSimbolos(table)
                 for instruccion in self.instruccionesIf:
+                    if isinstance(instruccion,Declaracion):
+                        instruccion.local = True   
                     result = instruccion.interpretar(tree,nuevaTabla)
+                        
                     if isinstance(result,Excepcion):
                         tree.getExcepciones().append(result)
                         tree.updateConsola(result.toString())
                     if isinstance(result,Break): return result
                     if isinstance(result,Continue): return result
+                    if isinstance(result,Return): return result
             else:
                 if self.instruccionesElseif != None:
                     for instruccion in self.instruccionesElseif:
+                        if isinstance(instruccion,Declaracion):
+                            instruccion.local = True
                         condicion = instruccion.condicion.interpretar(tree,table)
                         if condicion ==  True:
                             for instrElseif in instruccion.getInstrucciones():
+                                if isinstance(instruccion,Declaracion):
+                                    instruccion.local = True
                                 result = instrElseif.interpretar(tree,table)
                                 if isinstance(result,Excepcion):
                                     tree.getExcepciones().append(result)
                                     tree.updateConsola(result.toString())
                                 if isinstance(result,Break): return result
-                                if isinstance(result,Continue): return result 
+                                if isinstance(result,Continue): return result
+                                if isinstance(result,Return): return result  
                     if self.instruccionesElse != None:
                         for instr in self.instruccionesElse:
+                            if isinstance(instruccion,Declaracion):
+                                instruccion.local = True
                             result = instr.interpretar(tree,table)
                             if isinstance(result,Excepcion): return result
                             if isinstance(result,Break): return result
-                            if isinstance(result,Continue): return result     
+                            if isinstance(result,Continue): return result
+                            if isinstance(result,Return): return result      
                 elif self.instruccionesElse != None:
                     for instr in self.instruccionesElse:
+                        if isinstance(instr,Declaracion):
+                            instr.local = True
                         result = instr.interpretar(tree,table)
                         if isinstance(result,Excepcion): return result
                         if isinstance(result,Break): return result
-                        if isinstance(result,Continue): return result        
+                        if isinstance(result,Continue): return result
+                        if isinstance(result,Return): return result        
         else:   
            return Excepcion("Semantico","Tipo d e dato no booleano en If.",self.fila,self.columna) 

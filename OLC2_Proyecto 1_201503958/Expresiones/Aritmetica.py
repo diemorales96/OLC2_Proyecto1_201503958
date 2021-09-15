@@ -84,7 +84,7 @@ class Aritmetica(Instruccion):
         elif self.operador == OperadorAritmetico.DIV:
             if self.OperacionIzq.tipo == TIPO.ENTERO and self.OperacionDer.tipo == TIPO.ENTERO:
                 if self.obtenerVal(self.OperacionDer.tipo,der) != 0:
-                    self.tipo = TIPO.ENTERO
+                    self.tipo = TIPO.DECIMAL
                     return self.obtenerVal(self.OperacionIzq.tipo,izq) / self.obtenerVal(self.OperacionDer.tipo,der)
                 else:
                     return Excepcion("Semantico", "El divisor no puede ser 0", self.fila,self.columna)
@@ -112,14 +112,6 @@ class Aritmetica(Instruccion):
                 #END
             else:
                 return Excepcion("Semantico", "Null pointer para expresion /.", self.fila,self.columna)
-            #END
-        #------------------------------------------------------------------CONCATENACION------------------------------------------------------------------------------           
-        elif self.operador == OperadorAritmetico.CONCATENACION:
-            if self.OperacionIzq.tipo == TIPO.CADENA and self.OperacionDer.tipo == TIPO.CADENA:
-                self.tipo = TIPO.CADENA
-                return self.obtenerVal(self.OperacionIzq.tipo,izq) + self.obtenerVal(self.OperacionDer.tipo,der)
-            else:
-                return Excepcion("Semantico", "Null pointer para expresion ,.", self.fila,self.columna)
             #END
         #------------------------------------------------------------------POTENCIA------------------------------------------------------------------------------        
         elif self.operador == OperadorAritmetico.POT:

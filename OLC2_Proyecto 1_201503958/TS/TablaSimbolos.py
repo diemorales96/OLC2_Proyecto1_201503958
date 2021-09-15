@@ -8,38 +8,46 @@ class TablaSimbolos:
 
         
     def setTabla(self, simbolo): 
-        
-        if simbolo.id.lower() in self.tabla :
+        if simbolo.id in self.tabla :
             return Excepcion("Semantico", "Variable " + simbolo.id + " ya existe", simbolo.fila, simbolo.columna)
         else:
-            self.tabla[simbolo.id.lower()] = simbolo
+            self.tabla[simbolo.id] = simbolo
             return None    
                     
 
     def getTabla(self, id):        
         tablaActual = self
         while tablaActual != None:
-            if id.lower() in tablaActual.tabla :
-                return tablaActual.tabla[id.lower()]   
+            if id in tablaActual.tabla :
+                return tablaActual.tabla[id]   
             else:
                 tablaActual = tablaActual.anterior
         return None
 
+    def getTablasLocales(self, id):        
+        tablaActual = self
+        while tablaActual.anterior != None:
+            if id in tablaActual.tabla :
+                return tablaActual.tabla[id]   
+            else:
+                tablaActual = tablaActual.anterior
+        return None    
+
     def actualizarTabla(self, simbolo):
         tablaActual = self
         while tablaActual != None:
-            if simbolo.id.lower() in tablaActual.tabla :
-                if tablaActual.tabla[simbolo.id.lower()].getTipo() == simbolo.getTipo():
-                    tablaActual.tabla[simbolo.id.lower()].setValor(simbolo.getValor())
-                    tablaActual.tabla[simbolo.id.lower()].setTipo(simbolo.getTipo())
+            if simbolo.id in tablaActual.tabla :
+                if tablaActual.tabla[simbolo.id].getTipo() == simbolo.getTipo():
+                    tablaActual.tabla[simbolo.id].setValor(simbolo.getValor())
+                    tablaActual.tabla[simbolo.id].setTipo(simbolo.getTipo())
                     return None
-                elif tablaActual.tabla[simbolo.id.lower()].getTipo() == TIPO.NULO:
-                    tablaActual.tabla[simbolo.id.lower()].setValor(simbolo.getValor())
-                    tablaActual.tabla[simbolo.id.lower()].setTipo(simbolo.getTipo())
+                elif tablaActual.tabla[simbolo.id].getTipo() == TIPO.NULO:
+                    tablaActual.tabla[simbolo.id].setValor(simbolo.getValor())
+                    tablaActual.tabla[simbolo.id].setTipo(simbolo.getTipo())
                     return None
                 elif simbolo.getValor() == None:
-                    tablaActual.tabla[simbolo.id.lower()].setValor(simbolo.getValor())
-                    tablaActual.tabla[simbolo.id.lower()].setTipo(simbolo.getTipo())
+                    tablaActual.tabla[simbolo.id].setValor(simbolo.getValor())
+                    tablaActual.tabla[simbolo.id].setTipo(simbolo.getTipo())
                     return None
                 return Excepcion("Semantico", "Tipo de dato Diferente en Asignacion", simbolo.getFila(), simbolo.getColumna())
 
