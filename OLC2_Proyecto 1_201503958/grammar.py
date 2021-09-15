@@ -599,31 +599,33 @@ def crearNativas(ast):
     float = Float(nombre,parametros,instrucciones,-1,-1)
     ast.addFuncion(float)
 
-f = open("./src/entrada.txt", "r")
-entrada = f.read()
+#f = open("./src/entrada.txt", "r")
+#entrada = f.read()
 
 from TS.Arbol import Arbol
 from TS.TablaSimbolos import TablaSimbolos
 
-instrucciones = parse(entrada)
-ast = Arbol(instrucciones)
-TSGlobal = TablaSimbolos()
-ast.setTSglobal(TSGlobal)
-crearNativas(ast)
+def Analizar(entrada):
 
-for error in errores:
-    ast.getExcepciones().append(error)
+    instrucciones = parse(entrada)
+    ast = Arbol(instrucciones)
+    TSGlobal = TablaSimbolos()
+    ast.setTSglobal(TSGlobal)
+    crearNativas(ast)
 
-#Primera pasada para poder guardar las funciones existentes
-for instruccion in ast.getInstrucciones():
-    if isinstance(instruccion, Funcion):
-        ast.addFuncion(instruccion)
-#Segunda pasada para realizar todas las acciones excepto las declaraciones de funcones que ya se hicieron en la primera pasada
-for instruccion in ast.getInstrucciones():
-    if not isinstance(instruccion,Funcion):
-        value = instruccion.interpretar(ast,TSGlobal)
-        if isinstance(value, Excepcion) :
-            ast.getExcepciones().append(value)
-            ast.updateConsola(value.toString())
+    for error in errores:
+        ast.getExcepciones().append(error)
 
-print(ast.getConsola())
+    #Primera pasada para poder guardar las funciones existentes
+    for instruccion in ast.getInstrucciones():
+        if isinstance(instruccion, Funcion):
+            ast.addFuncion(instruccion)
+    #Segunda pasada para realizar todas las acciones excepto las declaraciones de funcones que ya se hicieron en la primera pasada
+    for instruccion in ast.getInstrucciones():
+        if not isinstance(instruccion,Funcion):
+            value = instruccion.interpretar(ast,TSGlobal)
+            if isinstance(value, Excepcion) :
+                ast.getExcepciones().append(value)
+                ast.updateConsola(value.toString())
+
+    print(ast.getConsola())
