@@ -33,6 +33,14 @@ class TablaSimbolos:
                 tablaActual = tablaActual.anterior
         return None    
 
+    def actualizarGlobal(self,simbolo):
+        tablaActual = self
+        while tablaActual.anterior != None:
+            tablaActual = tablaActual.anterior
+        tablaActual.tabla[simbolo.identificador].setValor(simbolo.expresion.valor)
+        return None
+
+
     def actualizarTabla(self, simbolo):
         tablaActual = self
         while tablaActual != None:

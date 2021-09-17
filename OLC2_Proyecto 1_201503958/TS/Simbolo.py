@@ -14,7 +14,7 @@ class Simbolo:
 
     def setID(self, id):
         self.id = id
-
+    
     def getTipo(self):
         return self.tipo
 

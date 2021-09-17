@@ -1,33 +1,33 @@
-function hanoi(discos::Int64, origen::Int64, auxiliar::Int64, destino::Int64)
-    if discos == 1
-        println("Mover de ", origen, " a ", destino);
-    else
-        hanoi(discos - 1, origen, destino, auxiliar);
-        println("Mover de ", origen, " a ", destino);
-        hanoi(discos - 1, auxiliar, origen, destino);
+println("=======================================================================");
+println("==========================FUNCIONES Y RETURN===========================");
+println("=======================================================================");
+function potenciaNativa(base::Int64, exponente::Int64)
+    resultado = base;
+    while exponente > 1
+        resultado = resultado * base;
+        exponente = exponente - 1;
     end;
+    return resultado;
 end;
 
-function factorial(num::Int64)
-    if num == 1
-        return 1;
-    else
-        return num * factorial(num - 1);
+println(potenciaNativa(5, 7));
+println(potenciaNativa(2, 2));
+println(potenciaNativa(4, 2));
+
+function sumarTodo(num1::Int64, num2::Int64)
+    result = 0;
+    if num1<0||num2<0
+        return -1;
     end;
+
+    while num1>0||num2>0
+        result = result + (num1 + num2);
+        num1 = num1 - 1;
+        num2 = num2 - 1;
+    end;
+    return result;
 end;
 
-function ackerman(m::Int64, n::Int64)
-    if m == 0
-        return n + 1;
-    elseif m > 0 && n == 0
-        return ackerman(m - 1, 1);
-    else
-        return ackerman(m - 1, ackerman(m, n - 1));
-    end;
-end;
-
-println(factorial(5));
-
-println(ackerman(3, 5));
-
-hanoi(3, 1, 2, 3);
+println(sumarTodo(5, 4));
+println(sumarTodo(-1, -5));
+println(sumarTodo(7, 7));

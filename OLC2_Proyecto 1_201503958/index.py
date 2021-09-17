@@ -15,12 +15,18 @@ def Reportes():
 @app.route('/Analisis',methods=["POST","GET"])
 def Analisis():
     if request.method=="POST":
-        global contenido
-        contenido = request.form["text1"]
-        #print(str(contenido))
-        analizador(str(contenido))
-        return redirect(url_for("Analisis"))
-    else:
+        input = request.form.get("text1")
+        #print(str(input))
+        #for a in input:
+            #print(ord(a))
+        try:
+            output = analizador(input)
+            #print(output)
+            return render_template('Analisis.html',input = input,output = output)
+        except:
+            output = "Se encontro un error del que no se puede recuperar en la entrada."
+            return render_template('Analisis.html',input = input,output = output)
+    elif request.method == 'GET':
         return render_template('Analisis.html')
 
 if __name__ == '__main__':

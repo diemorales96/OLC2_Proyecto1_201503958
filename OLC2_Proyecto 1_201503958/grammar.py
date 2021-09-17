@@ -36,7 +36,9 @@ reservadas = {
     'function'      : 'RFUNCTION',
     'return'        : 'RRETURN',
     'trunc'         : 'RTRUNCATE',
-    'log'           : 'RLOG'
+    'log'           : 'RLOG',
+    'global'        : 'RGLOBAL',
+    'local'         : 'RLOCAL'
 }
 
 tokens = [
@@ -146,7 +148,7 @@ def t_CARACTER(t):
 t_ignore = " \t"
 
 def t_newline(t):
-    r'\n+'
+    r'\r\n+'
     t.lexer.lineno += t.value.count("\n")
     
 def t_error(t):
@@ -180,6 +182,8 @@ from Instrucciones.Funcion import Funcion
 from Instrucciones.Llamada import Llamada
 from Expresiones.Truncate import Truncate
 from Expresiones.Log import Log 
+from Instrucciones.DeclaracionGlobal import DeclaracionGlobal
+from Instrucciones.DeclaracionLocal import DeclaracionLocal
 
 precedence = (
     ('left','OR'),
@@ -386,6 +390,24 @@ def p_parametrosLL_2(t) :
 def p_parametroLL(t) :
     'parametro_llamada     : expresion'
     t[0] = t[1]
+
+#Global
+def p_declaracion2(t):
+    'declaracion    : RGLOBAL ID IGUAL expresion'
+    t[0] = DeclaracionGlobal(t[2],t.lineno(1),find_column(input,t.slice[1]),None,t[4])
+
+def p_declaracion2_global(t):
+    'declaracion    : RGLOBAL ID'
+    t[0] = DeclaracionGlobal(t[2],t.lineno(1),find_column(input,t.slice[1]),None,t[4])
+#Local
+def p_declaracion_local(t):
+    'declaracion    : RLOCAL ID IGUAL expresion'
+    t[0] = DeclaracionLocal(t[2],t.lineno(1), find_column(input,t.slice[1]),None,t[4])
+
+def p_declaracion_local2(t):
+    'declaracion    : RLOCAL ID'
+    t[0] = DeclaracionLocal(t[2],t.lineno(1),find_column(input,t.slice[1]),None,None)
+
 
 #Tipos de variables
 def p_tipo(t) :
@@ -605,8 +627,8 @@ def crearNativas(ast):
 from TS.Arbol import Arbol
 from TS.TablaSimbolos import TablaSimbolos
 
-def Analizar(entrada):
 
+def Analizar(entrada):
     instrucciones = parse(entrada)
     ast = Arbol(instrucciones)
     TSGlobal = TablaSimbolos()
@@ -615,17 +637,22 @@ def Analizar(entrada):
 
     for error in errores:
         ast.getExcepciones().append(error)
-
+        ast.updateConsola(error.toString())
+        
     #Primera pasada para poder guardar las funciones existentes
     for instruccion in ast.getInstrucciones():
         if isinstance(instruccion, Funcion):
             ast.addFuncion(instruccion)
+
+        if isinstance(instruccion,Declaracion):
+            ast.addGlobal(instruccion)
     #Segunda pasada para realizar todas las acciones excepto las declaraciones de funcones que ya se hicieron en la primera pasada
     for instruccion in ast.getInstrucciones():
         if not isinstance(instruccion,Funcion):
             value = instruccion.interpretar(ast,TSGlobal)
             if isinstance(value, Excepcion) :
                 ast.getExcepciones().append(value)
-                ast.updateConsola(value.toString())
-
-    print(ast.getConsola())
+                ast.updateConsola(value.toString())    
+    return ast.getConsola()
+    
+        

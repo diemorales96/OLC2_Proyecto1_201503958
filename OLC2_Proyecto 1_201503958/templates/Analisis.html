@@ -1,9 +1,9 @@
 {% extends "layout.html" %}
 {% block content %}
-    <form action="#" method="post">
+    <form action="/Analisis" method="post">
         <h1>Area de analisis</h1>
         <p><input type="submit" value= "Analizar"/></p>
-        <textarea id = "text1" name= "text1" rows = "4" cols = "50"></textarea>
-        <textarea id = "text2" name= "text2" rows = "4" cols = "50"></textarea>
+        <textarea id = "in" name= "text1" rows = "4" cols = "50">{{ input }}</textarea>
+        <textarea id = "out" name= "text2" rows = "4" cols = "50">{{ output }}</textarea>
     </form>
 {% endblock %}

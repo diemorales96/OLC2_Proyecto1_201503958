@@ -11,6 +11,7 @@ class Arbol:
         self.cons = None
         self.dot = ""
         self.contador = 0
+        self.variablesGlobales =[]
 
 
     def getInstrucciones(self):
@@ -55,6 +56,15 @@ class Arbol:
     def addFuncion(self, funcion):
         self.funciones.append(funcion)
     
+    def getGlobal(self, nombre):
+        for globales in self.variablesGlobales:
+            if globales.identificador == nombre:
+                return globales
+        return None
+    
+    def addGlobal(self, globales):
+        self.variablesGlobales.append(globales)
+
     def setCons(self,consola):
         self.cons = consola
 
