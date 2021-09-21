@@ -1,5 +1,5 @@
 from Abstract.Instruccion import Instruccion
-
+from Abstract.NodoAST import NodoAST
 class Continue(Instruccion):
     def __init__(self, fila, columna):
         self.fila = fila
@@ -7,3 +7,7 @@ class Continue(Instruccion):
 
     def interpretar(self, tree, table):
         return self
+
+    def getNodo(self):
+        nodo = NodoAST("CONTINUE")
+        return nodo

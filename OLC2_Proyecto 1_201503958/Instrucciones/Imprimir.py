@@ -1,6 +1,7 @@
 from Abstract.Instruccion import Instruccion
 from TS.Excepcion import Excepcion
 from TS.Tipo import TIPO
+from Abstract.NodoAST import NodoAST
 
 class Imprimir(Instruccion):
     def __init__(self, expresion, fila, columna):
@@ -27,4 +28,8 @@ class Imprimir(Instruccion):
         tree.updateConsola(cadena)
         return None
 
-        
+    def getNodo(self):
+        nodo = NodoAST("IMPRIMIR")
+        for exp in self.expresion:
+            nodo.agregarHijoNodo(exp.getNodo())
+        return nodo

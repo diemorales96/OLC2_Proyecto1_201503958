@@ -14,11 +14,11 @@ class Cos(Funcion):
     
     def interpretar(self, tree, table):
         simbolo = table.getTabla("cos##param1")
-        if simbolo == None : return Excepcion("Semantico", "No se encontró el parámetro de log10", self.fila, self.columna)
+        if simbolo == None : return Excepcion("Semantico", "No se encontró el parámetro de cos", self.fila, self.columna)
 
         if simbolo.tipo != TIPO.DECIMAL: 
             if simbolo.tipo != TIPO.ENTERO:
-                return Excepcion("Semantico", "Tipo de parametro de Log10 no es numero.", self.fila, self.columna)
+                return Excepcion("Semantico", "Tipo de parametro de cos no es numero.", self.fila, self.columna)
 
         self.tipo = simbolo.tipo
         return math.cos(simbolo.getValor())

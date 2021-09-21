@@ -1,6 +1,6 @@
 from Abstract.Instruccion import Instruccion
 from TS.TablaSimbolos import TablaSimbolos
-
+from Abstract.NodoAST import NodoAST
 class Break(Instruccion):
     def __init__(self, fila, columna):
         self.fila = fila
@@ -8,3 +8,7 @@ class Break(Instruccion):
 
     def interpretar(self, tree, table):
         return self
+
+    def getNodo(self):
+        nodo = NodoAST("BREAK")
+        return nodo

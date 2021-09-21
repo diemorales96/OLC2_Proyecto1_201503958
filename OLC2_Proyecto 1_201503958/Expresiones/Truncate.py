@@ -1,6 +1,7 @@
 from Abstract.Instruccion import Instruccion
 from TS.Excepcion import Excepcion
 from TS.Tipo import TIPO
+from Abstract.NodoAST import NodoAST
 import math
 
 class Truncate(Instruccion):
@@ -15,3 +16,7 @@ class Truncate(Instruccion):
         if isinstance(value,Excepcion):return value
         if self.expresion.tipo == TIPO.DECIMAL:
             return math.trunc(value)
+
+    def getNodo(self):
+        nodo = NodoAST("TRUNC")
+        return nodo

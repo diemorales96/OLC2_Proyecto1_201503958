@@ -4,7 +4,7 @@ from Abstract.Instruccion import Instruccion
 from TS.Simbolo import Simbolo
 from TS.Tipo import TIPO
 from TS.TablaSimbolos import TablaSimbolos
-
+from Abstract.NodoAST import NodoAST
 
 class DeclaracionLocal(Instruccion):
     def __init__(self,identificador,fila,columna,tipo,expresion=None):
@@ -34,10 +34,18 @@ class DeclaracionLocal(Instruccion):
         if isinstance(value, Excepcion): return value
         simbolo = Simbolo(str(self.identificador), self.expresion.tipo, self.arreglo,self.funcion, self.fila, self.columna, value)
         result = table.setTabla(simbolo)
-        #tree.setSimbolo(simbolo)
         if isinstance(result, Excepcion): 
             res = table.actualizarTabla(simbolo)
             if isinstance(res,Excepcion): return res
         return None
+
+    def getNodo(self):
+        nodo = NodoAST("DECLARACION LOCAL")
+        if self.expresion!=None:
+            nodo.agregarHijo(str(self.identificador))
+            nodo.agregarHijoNodo(self.expresion.getNodo())
+        else:
+            nodo.agregarHijo(str(self.identificador))
+        return nodo
 
 

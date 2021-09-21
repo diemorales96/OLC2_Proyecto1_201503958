@@ -6,6 +6,8 @@ from Instrucciones.Break import Break
 from Instrucciones.Continue import Continue
 from Instrucciones.Declaracion import Declaracion
 from Instrucciones.Return import Return
+from Abstract.NodoAST import NodoAST
+
 
 class While(Instruccion):
     def __init__(self, condicion, instrucciones, fila, columna):
@@ -21,7 +23,7 @@ class While(Instruccion):
 
             if self.condicion.tipo == TIPO.BOOLEANO:
                 if bool(condicion) == True:  
-                    nuevaTabla = TablaSimbolos(table)      
+                    nuevaTabla = TablaSimbolos(table,"WHILE")      
                     for instruccion in self.instrucciones:
                         if isinstance(instruccion,Declaracion):
                             instruccion.local = True
@@ -36,4 +38,13 @@ class While(Instruccion):
                     break
             else:
                 return Excepcion("Semantico", "Tipo de dato no booleano en IF.", self.fila, self.columna)
-            
+
+
+    def getNodo(self):
+        nodo = NodoAST("WHILE")
+
+        instrucciones = NodoAST("INSTRUCCIONES")
+        for instr in self.instrucciones:
+            instrucciones.agregarHijoNodo(instr.getNodo())
+        nodo.agregarHijoNodo(instrucciones)
+        return nodo

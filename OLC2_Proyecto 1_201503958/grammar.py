@@ -1,9 +1,9 @@
+import os
 from Instrucciones.Elseif import Elseif
 from Instrucciones.Declaracion import Declaracion
 from Expresiones.Aritmetica import Aritmetica
 
 from TS.Tipo import OperadorAritmetico, OperadorLogico, OperadorRelacional, TIPO
-import re
 import sys
 
 sys.setrecursionlimit(3000)
@@ -148,7 +148,7 @@ def t_CARACTER(t):
 t_ignore = " \t"
 
 def t_newline(t):
-    r'\r\n+'
+    r'\n+'
     t.lexer.lineno += t.value.count("\n")
     
 def t_error(t):
@@ -294,7 +294,13 @@ def p_if2(t):
 def p_if3(t):
     '''if_instr      : RIF expresion instrucciones elseif_instr RELSE instrucciones REND
     '''
-    t[0] = t[0] = If(t[2],t[3],t[6],t[4],t.lineno(1),find_column(input,t.slice[1])) 
+    t[0] = If(t[2],t[3],t[6],t[4],t.lineno(1),find_column(input,t.slice[1])) 
+
+def p_if4(t):
+    '''if_instr      : RIF expresion instrucciones elseif_instr REND
+    '''
+    t[0] = If(t[2],t[3],None,t[4],t.lineno(1),find_column(input,t.slice[1]))
+
 #lista de elseif
 def p_elsif(t):
     '''elseif_instr     : elseif_instr elseif_instruction
@@ -556,6 +562,103 @@ def parse(inp) :
     input = inp
     return parser.parse(inp)
 
+def ReporteTabla(Errores):
+    cadena = "{% extends \"layout.html\" %}\n{% block content %}\n\n"
+    cadena = cadena + "<nav class=\"navbar navbar-expand-lg navbar-light bg-light\">"
+    cadena = cadena + "<div class=\"collapse navbar-collapse\" id=\"navbarNav\">\n"
+    cadena = cadena + "<ul class=\"navbar-nav\">\n"
+    cadena = cadena + "<li class=\"nav-item\">\n"
+    cadena  = cadena + "<a class=\"nav-link active\" aria-current=\"page\" href=\"/Reportes\">Reporte de Errores</a>\n"
+    cadena  = cadena + "</li>\n"
+    cadena = cadena + "<li class=\"nav-item\">\n"
+    cadena = cadena + "</li>"
+    cadena = cadena + "<li class=\"nav-item\">\n"
+    cadena = cadena + "<a class=\"nav-link active\" aria-current=\"page\" href=\"/TablaSimbolos\">Tabla de Simbolos</a>\n"
+    cadena  = cadena + "</li>\n"
+    cadena = cadena + "<li class=\"nav-item\">\n"
+    cadena = cadena + "</li>"
+    cadena = cadena + "<li class=\"nav-item\">\n"
+    cadena = cadena + "<a class=\"nav-link active\" aria-current=\"page\" href=\"/Arbol\">Arbol de Analisis Sintactico</a>\n"
+    cadena = cadena + "</li>"
+    cadena = cadena + "</ul>"
+    cadena = cadena + "</div>"
+    cadena  = cadena + "</nav>"
+    cadena = cadena + "<center>\n<table style=\"text-align:center;\" border=\"2\" class = \"egt\">\n\t"
+    cadena = cadena + "\n\t\t<th>No.</th>\n\t\t<th>Descripcion</th>\n\t\t<th>Linea</th>\n\t\t<th>Columna</th>\n\t\t<th>Fecha y Hora</th>\n\t</tr>\n" 
+    cont = 1
+    for a in Errores:
+        cadena = cadena + "<tr>\n\t\t<td>"+ str(cont) +"</td>\n"
+        cadena = cadena + "\n\t\t<td>"+ a.descripcion +"</td>\n"
+        cadena = cadena + "\n\t\t<td>"+ str(a.fila) +"</td>\n"
+        cadena = cadena + "\n\t\t<td>"+ str(a.columna) +"</td>\n"
+        cadena = cadena + "\n\t\t<td>"+ a.fecha +"</td>\n"
+        cont += 1
+    
+    cadena = cadena +"</table>\n{% endblock %}"
+    crearArchivo(cadena,"./templates/")
+
+def crearArchivo(cadena,path):
+        try:
+            os.stat(path.strip())
+        except:
+            os.makedirs(path.strip())
+        with open(path+"Reportes.html","w+",encoding="utf-8") as file:
+            file.seek(0,0)
+            file.write(cadena)
+            file.close()
+        #END
+#END
+
+
+def ReporteTSimbolos(Tabla):
+    cadena = "{% extends \"layout.html\" %}\n{% block content %}\n\n"
+    cadena = cadena + "<nav class=\"navbar navbar-expand-lg navbar-light bg-light\">"
+    cadena = cadena + "<div class=\"collapse navbar-collapse\" id=\"navbarNav\">\n"
+    cadena = cadena + "<ul class=\"navbar-nav\">\n"
+    cadena = cadena + "<li class=\"nav-item\">\n"
+    cadena  = cadena + "<a class=\"nav-link active\" aria-current=\"page\" href=\"/Reportes\">Reporte de Errores</a>\n"
+    cadena  = cadena + "</li>\n"
+    cadena = cadena + "<li class=\"nav-item\">\n"
+    cadena = cadena + "</li>"
+    cadena = cadena + "<li class=\"nav-item\">\n"
+    cadena = cadena + "<a class=\"nav-link active\" aria-current=\"page\" href=\"/TablaSimbolos\">Tabla de Simbolos</a>\n"
+    cadena  = cadena + "</li>\n"
+    cadena = cadena + "<li class=\"nav-item\">\n"
+    cadena = cadena + "</li>"
+    cadena = cadena + "<li class=\"nav-item\">\n"
+    cadena = cadena + "<a class=\"nav-link active\" aria-current=\"page\" href=\"/Arbol\">Arbol de Analisis Sintactico</a>\n"
+    cadena = cadena + "</li>"
+    cadena = cadena + "</ul>"
+    cadena = cadena + "</div>"
+    cadena  = cadena + "</nav>"
+    cadena = cadena + "<center>\n<table border=\"1\" class = \"egt\">\n\t"
+    cadena = cadena + "<tr>\n\t\t<th>Nombre</th>\n\t\t<th>Tipo</th>\n\t\t<th>Ambito</th>\n\t\t<th>Fila</th>\n\t\t<th>Columna</th>\n\t</tr>\n" 
+    cont = 1
+    for a in Tabla:
+        cadena = cadena + "<tr>\n\t\t<td>"+ a[0] +"</td>\n"
+        cadena = cadena + "\n\t\t<td>"+ a[1] +"</td>\n"
+        cadena = cadena + "\n\t\t<td>"+ a[2] +"</td>\n"
+        cadena = cadena + "\n\t\t<td>"+ str(a[3]) +"</td>\n"
+        cadena = cadena + "\n\t\t<td>"+ str(a[4]) +"</td>\n"
+        cont += 1
+    
+    cadena = cadena +"</table>\n{% endblock %}"
+    crearArchivo2(cadena,"./templates/")
+
+
+def crearArchivo2(cadena,path):
+        try:
+            os.stat(path.strip())
+        except:
+            os.makedirs(path.strip())
+        with open(path+"TablaSimbolos.html","w+",encoding="utf-8") as file:
+            file.seek(0,0)
+            file.write(cadena)
+            file.close()
+        #END
+#END
+
+
 from Nativas.Lowercase import Lowercase
 from Nativas.Uppercase import Uppercase
 from Nativas.Typeof import Typeof
@@ -621,38 +724,61 @@ def crearNativas(ast):
     float = Float(nombre,parametros,instrucciones,-1,-1)
     ast.addFuncion(float)
 
-#f = open("./src/entrada.txt", "r")
-#entrada = f.read()
+f = open("./src/entrada.txt", "r")
+entrada = f.read()
 
 from TS.Arbol import Arbol
 from TS.TablaSimbolos import TablaSimbolos
+from Abstract.NodoAST import NodoAST
+instrucciones = parse(entrada)
+ast = Arbol(instrucciones)
 
+TSGlobal = TablaSimbolos(None,"GLOBAL")
+ast.setTSglobal(TSGlobal)
+TSGlobal.limpiarTabla()
+crearNativas(ast)
 
-def Analizar(entrada):
-    instrucciones = parse(entrada)
-    ast = Arbol(instrucciones)
-    TSGlobal = TablaSimbolos()
-    ast.setTSglobal(TSGlobal)
-    crearNativas(ast)
-
-    for error in errores:
-        ast.getExcepciones().append(error)
-        ast.updateConsola(error.toString())
-        
-    #Primera pasada para poder guardar las funciones existentes
-    for instruccion in ast.getInstrucciones():
-        if isinstance(instruccion, Funcion):
-            ast.addFuncion(instruccion)
-
-        if isinstance(instruccion,Declaracion):
-            ast.addGlobal(instruccion)
-    #Segunda pasada para realizar todas las acciones excepto las declaraciones de funcones que ya se hicieron en la primera pasada
-    for instruccion in ast.getInstrucciones():
-        if not isinstance(instruccion,Funcion):
-            value = instruccion.interpretar(ast,TSGlobal)
-            if isinstance(value, Excepcion) :
-                ast.getExcepciones().append(value)
-                ast.updateConsola(value.toString())    
-    return ast.getConsola()
+for error in errores:
+    ast.getExcepciones().append(error)
+    ast.updateConsola(error.toString())
     
-        
+#Primera pasada para poder guardar las funciones existentes
+for instruccion in ast.getInstrucciones():
+    if isinstance(instruccion, Funcion):
+        TSGlobal.setTSimbolos(instruccion)
+        ast.addFuncion(instruccion)
+
+    if isinstance(instruccion,Declaracion):
+        ast.addGlobal(instruccion)
+#Segunda pasada para realizar todas las acciones excepto las declaraciones de funcones que ya se hicieron en la primera pasada
+for instruccion in ast.getInstrucciones():
+    if not isinstance(instruccion,Funcion):
+        value = instruccion.interpretar(ast,TSGlobal)
+        if isinstance(value, Excepcion) :
+            ast.getExcepciones().append(value)
+            ast.updateConsola(value.toString()) 
+
+init = NodoAST("RAIZ")
+instr = NodoAST("INSTRUCCIONES")
+
+for instruccion in ast.getInstrucciones():
+    instr.agregarHijoNodo(instruccion.getNodo())
+
+init.agregarHijoNodo(instr)
+graph = ast.getDot(init)
+dirname = os.path.dirname(__file__)
+direcc = os.path.join(dirname, 'ast.dot')
+file = open(direcc, "w+", encoding="utf-8")
+file.write(graph)
+file.close()
+os.chdir(dirname)
+os.system('dot -T svg -o ast.svg ast.dot')
+
+print(ast.getConsola())
+#def Analizar(entrada):
+
+    #ReporteTabla(ast.getExcepciones())
+    #tabla = TSGlobal.obtenerTSimbolos()
+    #ReporteTSimbolos(tabla)
+    #return ast.getConsola()
+    

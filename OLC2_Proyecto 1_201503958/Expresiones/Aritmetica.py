@@ -2,6 +2,7 @@ from io import open_code
 from Abstract.Instruccion import Instruccion
 from TS.Excepcion import Excepcion
 from TS.Tipo import TIPO,OperadorAritmetico
+from Abstract.NodoAST import NodoAST
 
 class Aritmetica(Instruccion):
     def __init__(self, operador, OperacionIzq, OperaicionDer,fila, columna):
@@ -131,6 +132,7 @@ class Aritmetica(Instruccion):
                 return self.obtenerVal(self.OperacionIzq.tipo,izq) ** self.obtenerVal(self.OperacionDer.tipo,der)
                 #END
             elif self.OperacionIzq.tipo == TIPO.CADENA and self.OperacionDer.tipo == TIPO.ENTERO:
+                self.tipo = TIPO.CADENA
                 cad = ""
                 for i in range(self.obtenerVal(self.OperacionDer.tipo,der)):
                     cad = cad + self.obtenerVal(self.OperacionIzq.tipo,izq)
@@ -183,6 +185,18 @@ class Aritmetica(Instruccion):
             return Excepcion("Semantico", "Operador no definido.", self.fila,self.columna)
         #END
     #END
+
+    def getNodo(self):
+        nodo = NodoAST("ARITMETICA")
+        if self.OperacionDer != None:
+            nodo.agregarHijoNodo(self.OperacionIzq.getNodo())
+            nodo.agregarHijo(self.operador)
+            nodo.agregarHijoNodo(self.OperacionDer.getNodo())
+        else:
+            nodo.agregarHijo(self.operador)
+            nodo.agregarHijoNodo(self.OperacionIzq.getNodo())
+        return nodo
+
 
     def obtenerVal(self, tipo, val):
         if tipo == TIPO.ENTERO:

@@ -7,6 +7,8 @@ from Instrucciones.Break import Break
 from Instrucciones.Continue import Continue
 from Instrucciones.Declaracion import Declaracion
 from Instrucciones.Return import Return 
+from Abstract.NodoAST import NodoAST
+
 
 class For(Instruccion):
     def __init__(self,declaracion, expresionizq,expresionder,instrucciones,expresioncad,fila, columna):
@@ -26,13 +28,13 @@ class For(Instruccion):
             if isinstance(valor1,Excepcion): return valor1
             valor2 = self.expresionder.interpretar(tree,table)
             if isinstance(valor2,Excepcion): return valor2
-            nTable = TablaSimbolos(table)
+            nTable = TablaSimbolos(table,"FOR")
 
             
             simbolo = Simbolo(str(self.declaracion), self.expresionizq.tipo,self.arreglo,self.funcion, self.fila, self.columna, valor1)
             result = nTable.setTabla(simbolo)
             if isinstance(result, Excepcion): return result
-            nuevaTabla = TablaSimbolos(nTable)
+            nuevaTabla = TablaSimbolos(nTable,"FOR")
             while valor2 >= valor1:
                 for instruccion in self.instrucciones:
                     if isinstance(instruccion,Declaracion):
@@ -58,11 +60,11 @@ class For(Instruccion):
                 cad = self.expresioncad.interpretar(tree,table)
                 if isinstance(cad,Excepcion): return cad
                 if self.expresioncad.tipo == TIPO.CADENA:
-                    nTable = TablaSimbolos(table)
+                    nTable = TablaSimbolos(table,"FOR")
                     simbolo = Simbolo(str(self.declaracion), self.expresioncad.tipo,self.arreglo,self.funcion, self.fila, self.columna, "")
                     result = nTable.setTabla(simbolo)
                     if isinstance(result, Excepcion): return result   
-                    nuevaTabla = TablaSimbolos(nTable)
+                    nuevaTabla = TablaSimbolos(nTable,"FOR")
                     for cadena in cad:
                         simbolo = Simbolo(str(self.declaracion), self.expresioncad.tipo,self.arreglo,self.funcion, self.fila, self.columna, cadena)
                         res = nuevaTabla.actualizarTabla(simbolo)
@@ -75,4 +77,13 @@ class For(Instruccion):
                                 tree.updateConsola(result.toString())
                             if isinstance(result,Break): return result
                             if isinstance(result,Continue): continue
-                            if isinstance(result,Return): return result           
+                            if isinstance(result,Return): return result         
+                            
+    def getNodo(self):
+        nodo = NodoAST("FOR")
+
+        Instrucciones = NodoAST("INSTRUCCIONES FOR")
+        for instr in self.instrucciones:
+            Instrucciones.agregarHijoNodo(instr.getNodo())
+        nodo.agregarHijoNodo(Instrucciones)
+        return nodo

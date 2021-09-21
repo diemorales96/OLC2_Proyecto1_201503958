@@ -100,13 +100,9 @@ class Arbol:
         elif operador == 'OperadorAritmetico.DIV':
             return "/"
         elif operador == 'OperadorAritmetico.POT':
-            return "**"
+            return "^"
         elif operador == 'OperadorAritmetico.MOD':
             return "%"
-        elif operador == 'OperadorAritmetico.INCREMENTO':
-            return "++"
-        elif operador == 'OperadorAritmetico.Decremento':
-            return "--"
         elif operador == 'TIPO.ARREGLO':
             return "ARREGLO"
         elif operador == 'TIPO.BOOLEANO':
@@ -126,7 +122,7 @@ class Arbol:
         elif operador == 'OperadorLogico.NOT':
             return "!"
         elif operador == 'OperadorRelacional.DIFERENTE':
-            return "=!"
+            return "!="
         elif operador == 'OperadorRelacional.IGUALIGUAL':
             return "=="
         elif operador == 'OperadorRelacional.MAYORIGUAL':

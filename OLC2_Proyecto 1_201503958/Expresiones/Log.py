@@ -1,6 +1,7 @@
 from Abstract.Instruccion import Instruccion
 from TS.Excepcion import Excepcion
 from TS.Tipo import TIPO
+from Abstract.NodoAST import NodoAST
 import math
 
 class Log(Instruccion):
@@ -24,3 +25,7 @@ class Log(Instruccion):
                 return Excepcion("Semantico","No se puede obtener el valor del logaritmo de este tipo de dato.",self.fila,self.columna)
         else:
             return Excepcion("Semantico","No se puede obtener el valor del logaritmo con este tipo en la base.",self.fila,self.columna)
+
+    def getNodo(self):
+        nodo = NodoAST("LOG")
+        return nodo

@@ -1,6 +1,8 @@
 from Abstract.Instruccion import Instruccion
 from TS.Excepcion import Excepcion
 from TS.Tipo import TIPO
+from Abstract.NodoAST import NodoAST
+
 
 class Casteo(Instruccion):
     def __init__(self, tipo,expresion, fila, columna):
@@ -38,6 +40,12 @@ class Casteo(Instruccion):
                 except:
                     return Excepcion("Semantico", "No se puede parseo para Int64.", self.fila, self.columna)
             return Excepcion("Semantico", "Tipo Erroneo de parseo para Int64.", self.fila, self.columna)
+
+    def getNodo(self):
+        nodo = NodoAST("CASTEO")
+        nodo.agregarHijo(self.tipo)
+        nodo.agregarHijoNodo(self.expresion.getNodo())
+        return nodo
 
     def obtenerVal(self, tipo, val):
         if tipo == TIPO.ENTERO:

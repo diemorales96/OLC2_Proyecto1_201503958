@@ -14,10 +14,10 @@ class Lowercase(Funcion):
     
     def interpretar(self, tree, table):
         simbolo = table.getTabla("lowercase##Param1")
-        if simbolo == None : return Excepcion("Semantico", "No se encontró el parámetro de ToLower", self.fila, self.columna)
+        if simbolo == None : return Excepcion("Semantico", "No se encontró el parámetro de lowercase", self.fila, self.columna)
 
         if simbolo.getTipo() != TIPO.CADENA:
-            return Excepcion("Semantico", "Tipo de parametro de ToLower no es cadena.", self.fila, self.columna)
+            return Excepcion("Semantico", "Tipo de parametro de lowercase no es cadena.", self.fila, self.columna)
 
         self.tipo = simbolo.getTipo()
         return simbolo.getValor().lower()

@@ -6,6 +6,8 @@ from Instrucciones.Break import Break
 from Instrucciones.Continue import Continue
 from Instrucciones.Declaracion import Declaracion
 from Instrucciones.Return import Return
+from Abstract.NodoAST import NodoAST
+
 
 class If(Instruccion):
     def __init__(self, condicion,instruccionIf,instruccionesElse,instruccioneselseif, fila, columna):
@@ -23,7 +25,7 @@ class If(Instruccion):
 
         if self.condicion.tipo == TIPO.BOOLEANO:
             if bool(condicion) == True:
-                nuevaTabla = TablaSimbolos(table)
+                nuevaTabla = TablaSimbolos(table,"IF")
                 for instruccion in self.instruccionesIf:
                     if isinstance(instruccion,Declaracion):
                         instruccion.local = True   
@@ -35,14 +37,14 @@ class If(Instruccion):
                     if isinstance(result,Break): return result
                     if isinstance(result,Continue): return result
                     if isinstance(result,Return): return result
+                    
             else:
                 if self.instruccionesElseif != None:
                     for instruccion in self.instruccionesElseif:
-                        if isinstance(instruccion,Declaracion):
-                            instruccion.local = True
                         condicion = instruccion.condicion.interpretar(tree,table)
                         if condicion ==  True:
                             for instrElseif in instruccion.getInstrucciones():
+                                
                                 if isinstance(instruccion,Declaracion):
                                     instruccion.local = True
                                 result = instrElseif.interpretar(tree,table)
@@ -51,16 +53,18 @@ class If(Instruccion):
                                     tree.updateConsola(result.toString())
                                 if isinstance(result,Break): return result
                                 if isinstance(result,Continue): return result
-                                if isinstance(result,Return): return result  
-                    if self.instruccionesElse != None:
+                                if isinstance(result,Return): return result
+                                  
+                    if self.instruccionesElse != None and condicion == False:
                         for instr in self.instruccionesElse:
-                            if isinstance(instruccion,Declaracion):
-                                instruccion.local = True
+                            if isinstance(instr,Declaracion):
+                                instr.local = True
                             result = instr.interpretar(tree,table)
                             if isinstance(result,Excepcion): return result
                             if isinstance(result,Break): return result
                             if isinstance(result,Continue): return result
-                            if isinstance(result,Return): return result      
+                            if isinstance(result,Return): return result
+                                  
                 elif self.instruccionesElse != None:
                     for instr in self.instruccionesElse:
                         if isinstance(instr,Declaracion):
@@ -69,6 +73,26 @@ class If(Instruccion):
                         if isinstance(result,Excepcion): return result
                         if isinstance(result,Break): return result
                         if isinstance(result,Continue): return result
-                        if isinstance(result,Return): return result        
+                        if isinstance(result,Return): return result 
+                               
         else:   
            return Excepcion("Semantico","Tipo d e dato no booleano en If.",self.fila,self.columna) 
+
+    def getNodo(self):
+        nodo = NodoAST("IF")
+
+        instruccionesIf = NodoAST("INSTRUCCIONES IF")
+        for instr in self.instruccionesIf:
+            instruccionesIf.agregarHijoNodo(instr.getNodo())
+        nodo.agregarHijoNodo(instruccionesIf)
+
+        if self.instruccionesElse != None:
+            instruccionesElse = NodoAST("INSTRUCCIONES ELSE")
+            for instr in self.instruccionesElse:
+                instruccionesElse.agregarHijoNodo(instr.getNodo())
+            nodo.agregarHijoNodo(instruccionesElse) 
+        elif self.instruccionesElseif != None:
+            for intr in self.instruccionesElseif:
+                nodo.agregarHijoNodo(intr.getNodo())
+
+        return nodo  

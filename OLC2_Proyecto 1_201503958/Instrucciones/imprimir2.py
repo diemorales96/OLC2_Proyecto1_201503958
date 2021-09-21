@@ -1,6 +1,7 @@
 from Abstract.Instruccion import Instruccion
 from TS.Excepcion import Excepcion
 from TS.Tipo import TIPO
+from Abstract.NodoAST import NodoAST
 
 class Imprimir2(Instruccion):
     def __init__(self, expresion, fila, columna):
@@ -23,5 +24,11 @@ class Imprimir2(Instruccion):
 
             elif value.tipo == TIPO.NULO:
                 return Excepcion("Semantico", "Null pointer, no se puede imprimir tipo NULL", self.fila, self.columna)
-            tree.updateConsola(cadena)
+        tree.updateConsola2(cadena)
         return None
+
+    def getNodo(self):
+        nodo = NodoAST("IMPRIMIR")
+        for exp in self.expresion:
+            nodo.agregarHijoNodo(exp.getNodo())
+        return nodo

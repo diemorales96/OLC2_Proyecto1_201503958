@@ -1,6 +1,8 @@
 from TS.Excepcion import Excepcion
 from Abstract.Instruccion import Instruccion
 from TS.Simbolo import Simbolo
+from Abstract.NodoAST import NodoAST
+
 
 class Declaracion(Instruccion):
     def __init__(self, identificador, fila, columna, expresion,tipodec):
@@ -46,3 +48,13 @@ class Declaracion(Instruccion):
                 result = table.setTabla(simbolo)
                 if isinstance(result,Excepcion): return result
             return None
+
+
+    def getNodo(self):
+        nodo = NodoAST("DECLARACION")
+        if self.expresion!=None:
+            nodo.agregarHijo(str(self.identificador))
+            nodo.agregarHijoNodo(self.expresion.getNodo())
+        else:
+            nodo.agregarHijo(str(self.identificador))
+        return nodo

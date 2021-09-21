@@ -7,4 +7,12 @@ body{
 textarea {
     width: 625px;
     height: 625px;
+    font-family: ms;
 }
+
+table {
+    border: #b2b2b2 1px solid;
+  }
+  td, th {
+    border: black 1px solid;
+  }

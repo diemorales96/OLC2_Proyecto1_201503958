@@ -8,20 +8,24 @@ app = Flask(__name__)
 def home():
     return render_template('home.html')
 
-@app.route('/Reportes')
+@app.route('/Reportes',methods =["POST","GET"])
 def Reportes():
     return render_template('Reportes.html')
+
+@app.route('/TablaSimbolos',methods =["POST","GET"])
+def TablaSimbolos():
+    return render_template('TablaSimbolos.html') 
+
+@app.route('/Arbol',methods =["POST","GET"])
+def Arbol():
+    return render_template('Arbol.html')    
 
 @app.route('/Analisis',methods=["POST","GET"])
 def Analisis():
     if request.method=="POST":
-        input = request.form.get("text1")
-        #print(str(input))
-        #for a in input:
-            #print(ord(a))
+        input = request.form.get("text1") 
         try:
             output = analizador(input)
-            #print(output)
             return render_template('Analisis.html',input = input,output = output)
         except:
             output = "Se encontro un error del que no se puede recuperar en la entrada."

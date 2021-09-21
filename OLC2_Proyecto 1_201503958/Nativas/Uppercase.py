@@ -14,10 +14,10 @@ class Uppercase(Funcion):
     
     def interpretar(self, tree, table):
         simbolo = table.getTabla("uppercase##Param1")
-        if simbolo == None : return Excepcion("Semantico", "No se encontró el parámetro de ToUpper", self.fila, self.columna)
+        if simbolo == None : return Excepcion("Semantico", "No se encontró el parámetro de uppercase", self.fila, self.columna)
 
         if simbolo.getTipo() != TIPO.CADENA:
-            return Excepcion("Semantico", "Tipo de parametro de ToUpper no es cadena.", self.fila, self.columna)
+            return Excepcion("Semantico", "Tipo de parametro de uppercase no es cadena.", self.fila, self.columna)
 
         self.tipo = simbolo.getTipo()
         return simbolo.getValor().upper()
