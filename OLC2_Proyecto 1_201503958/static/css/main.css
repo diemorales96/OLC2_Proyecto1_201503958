@@ -7,7 +7,7 @@ body{
 textarea {
     width: 625px;
     height: 625px;
-    font-family: ms;
+    font-family: 'Consolas';
 }
 
 table {

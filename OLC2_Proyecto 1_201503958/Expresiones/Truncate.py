@@ -19,4 +19,6 @@ class Truncate(Instruccion):
 
     def getNodo(self):
         nodo = NodoAST("TRUNC")
+        nodo.agregarHijo(self.tipo)
+        nodo.agregarHijoNodo(self.expresion.getNodo())
         return nodo

@@ -17,11 +17,13 @@ class Casteo(Instruccion):
         if self.tipo == TIPO.CADENA:
             if self.expresion.tipo == TIPO.DECIMAL:
                 try:
+                   self.tipo = TIPO.CADENA
                    return  str(self.obtenerVal(self.expresion.tipo,val))
                 except:
                     return Excepcion("Semantico","Nose puede Parsear para String.",self.fila,self.columna)
             elif self.expresion.tipo == TIPO.ENTERO:
                 try:
+                   self.tipo = TIPO.CADENA
                    return  str(self.obtenerVal(self.expresion.tipo,val))
                 except:
                     return Excepcion("Semantico","Nose puede Parsear para String.",self.fila,self.columna)
@@ -29,6 +31,7 @@ class Casteo(Instruccion):
         if self.tipo == TIPO.DECIMAL:
             if self.expresion.tipo == TIPO.CADENA:
                 try:
+                    self.tipo = TIPO.DECIMAL
                     return float(self.obtenerVal(self.expresion.tipo, val))
                 except:
                     return Excepcion("Semantico", "No se puede parseo para Float64.", self.fila, self.columna)
@@ -36,13 +39,14 @@ class Casteo(Instruccion):
         if self.tipo == TIPO.ENTERO:
             if self.expresion.tipo == TIPO.CADENA:
                 try:
+                    self.tipo = TIPO.ENTERO
                     return int(self.obtenerVal(self.expresion.tipo, val))
                 except:
                     return Excepcion("Semantico", "No se puede parseo para Int64.", self.fila, self.columna)
             return Excepcion("Semantico", "Tipo Erroneo de parseo para Int64.", self.fila, self.columna)
 
     def getNodo(self):
-        nodo = NodoAST("CASTEO")
+        nodo = NodoAST("PARSE")
         nodo.agregarHijo(self.tipo)
         nodo.agregarHijoNodo(self.expresion.getNodo())
         return nodo

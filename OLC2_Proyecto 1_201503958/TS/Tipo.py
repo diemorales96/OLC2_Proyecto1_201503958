@@ -8,6 +8,7 @@ class TIPO(Enum):
     CADENA = 5
     NULO = 6
     ARREGLO = 7
+    STRUCT = 8
 
 class OperadorAritmetico(Enum):
     MAS = 1

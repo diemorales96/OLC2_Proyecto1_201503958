@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request,url_for,redirect
 from grammar import Analizar as analizador
-
+import os, webbrowser
 
 app = Flask(__name__)
 
@@ -17,8 +17,10 @@ def TablaSimbolos():
     return render_template('TablaSimbolos.html') 
 
 @app.route('/Arbol',methods =["POST","GET"])
+
 def Arbol():
-    return render_template('Arbol.html')    
+    webbrowser.open('file://' + os.path.realpath("ast.svg"))
+    return render_template('home.html')    
 
 @app.route('/Analisis',methods=["POST","GET"])
 def Analisis():

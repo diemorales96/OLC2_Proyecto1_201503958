@@ -23,10 +23,6 @@ class Return(Instruccion):
         return self
 
     def getNodo(self):
-        nodo = NodoAST("LLAMADA A FUNCION")
-        nodo.agregarHijo(str(self.nombre))
-        parametros = NodoAST("PARAMETROS")
-        for param in self.parametros:
-            parametros.agregarHijoNodo(param.getNodo())
-        nodo.agregarHijoNodo(parametros)
+        nodo = NodoAST("RETURN")
+        nodo.agregarHijoNodo(self.expresion.getNodo())
         return nodo

@@ -1,3 +1,4 @@
+from typing import Dict
 from Abstract.Instruccion import Instruccion
 from TS.Excepcion import Excepcion
 from TS.TablaSimbolos import TablaSimbolos
@@ -11,13 +12,14 @@ from Abstract.NodoAST import NodoAST
 
 
 class For(Instruccion):
-    def __init__(self,declaracion, expresionizq,expresionder,instrucciones,expresioncad,fila, columna):
+    def __init__(self,declaracion, expresionizq,expresionder,instrucciones,expresioncad,arr,fila, columna):
         self.declaracion = declaracion
         self.expresionizq = expresionizq
         self.expresionder = expresionder
         self.instrucciones = instrucciones
         self.expresioncad = expresioncad
         self.fila = fila
+        self.arr = arr
         self.columna = columna
         self.arreglo = False
         self.funcion = False
@@ -55,7 +57,7 @@ class For(Instruccion):
                 if isinstance(result,Break): return result
                 if isinstance(result,Continue): continue
                 if isinstance(result,Return): return result  
-        else:
+        elif self.expresioncad != None and not isinstance(self.expresioncad,Dict):
             if self.expresioncad != None:
                 cad = self.expresioncad.interpretar(tree,table)
                 if isinstance(cad,Excepcion): return cad
@@ -78,7 +80,45 @@ class For(Instruccion):
                             if isinstance(result,Break): return result
                             if isinstance(result,Continue): continue
                             if isinstance(result,Return): return result         
-                            
+                else:
+                    nTable = TablaSimbolos(table,"FOR")
+                    simbolo = Simbolo(str(self.declaracion), cad[0].tipo,self.arreglo,self.funcion, self.fila, self.columna, cad[0].valor)
+                    result = nTable.setTabla(simbolo)
+                    for instr in cad:
+                        x = instr.interpretar(tree,nTable)
+                        simbolo = Simbolo(str(self.declaracion), x.tipo,self.arreglo,self.funcion, self.fila, self.columna, x.valor)
+                        res = nTable.actualizarTabla(simbolo)
+                        res = instr.interpretar(tree,nTable)
+                        if isinstance(res,Excepcion):
+                            tree.getExcepciones().append(result)
+                            tree.updateConsola(result.toString())
+                        if isinstance(res,Break): return result
+                        if isinstance(res,Continue): continue
+                        if isinstance(res,Return): return result
+        elif self.arr != None:
+            valores = self.arr['valores']
+            arra = []
+            for x in valores:
+                z = x.interpretar(tree,table)
+                sim = Simbolo("",x.tipo,False,False,self.fila,self.columna,z)
+                arra.append(sim)
+            sim = Simbolo(str(self.declaracion),self.arr['tipo'],False,False,self.fila,self.columna,arra)
+            tablita=TablaSimbolos(table,"FOR")
+            verifi = tablita.setTabla(sim)
+            if isinstance(verifi,Excepcion):return verifi
+            Ntab=TablaSimbolos(tablita,"FOR")
+            for carac in arra:
+                sim = Simbolo(str(self.declaracion),carac.tipo,False,False,self.fila,self.columna,carac.getValor())
+                res = Ntab.actualizarTabla(sim)
+                if isinstance(res,Excepcion):res
+                for inst in self.instrucciones:
+                    resul = inst.interpretar(tree,Ntab)
+                    if isinstance(resul,Excepcion):
+                        tree.getExcepciones().append(resul)
+                        tree.updateConsola(resul.toString())
+
+
+
     def getNodo(self):
         nodo = NodoAST("FOR")
 

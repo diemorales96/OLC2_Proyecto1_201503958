@@ -1,5 +1,7 @@
 from Abstract.Instruccion import Instruccion
+from Expresiones.Identificador import Identificador
 from TS.Excepcion import Excepcion
+from TS.Simbolo import Simbolo
 from TS.Tipo import TIPO
 from Abstract.NodoAST import NodoAST
 
@@ -13,15 +15,19 @@ class Imprimir(Instruccion):
 
         cadena = ""
         for value in self.expresion:
-            cadena += str(value.interpretar(tree,table))
-            if isinstance(value.interpretar(tree,table),Excepcion):
-                return value.interpretar(tree,table)
-
-            if value.tipo == TIPO.ARREGLO:
-                valores = value.interpretar(tree,table)
-                for elemento in valores.get_list_value():
-                    tree.updateConsola(elemento.valor)
-                    return None
+            val = value.interpretar(tree,table)
+            if value.tipo == TIPO.ARREGLO and isinstance(value,Identificador):
+                arr = table.getTabla(value.identificador)
+                cadena += arr.arraysito(val,tree,table)
+            else:
+                if isinstance(val,Simbolo):
+                    if val.tipo != TIPO.ARREGLO:
+                        cadena+= str(val.getValor())
+                    else:
+                        cadena+=val.arraysito(val.getValor(),tree,table)
+                else:
+                    cadena += str(val)
+            if isinstance(val,Excepcion): return val
 
             if value.tipo == TIPO.NULO:
                 return Excepcion("Semantico", "Null pointer, no se puede imprimir tipo NULL", self.fila, self.columna)

@@ -1,3 +1,5 @@
+from TS.Tipo import TIPO
+
 
 class Simbolo:
     def __init__(self, identificador, tipo, arreglo,funcion, fila, columna, valor,parametro = False ):
@@ -39,3 +41,25 @@ class Simbolo:
 
     def getFuncion(self):
         return self.funcion
+
+
+    def arraysito(self,array,tree,table):
+        cadenita="["
+        contador=0
+        if isinstance(array,Simbolo):
+            array=array.getValor()
+        for x in array:
+            contador=contador+1
+            if x.tipo!=TIPO.ARREGLO:
+                cadenita+=str(x.getValor())
+                if contador<len(array):
+                    cadenita+=","
+            else:
+                
+                cadenita+=self.arraysito(x,tree,table)
+                
+                if contador<len(array):
+                    cadenita+=","
+            
+        cadenita+="]"
+        return cadenita

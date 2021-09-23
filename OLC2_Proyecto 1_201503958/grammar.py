@@ -2,6 +2,7 @@ import os
 from Instrucciones.Elseif import Elseif
 from Instrucciones.Declaracion import Declaracion
 from Expresiones.Aritmetica import Aritmetica
+from Instrucciones.Lengtth import Length
 
 from TS.Tipo import OperadorAritmetico, OperadorLogico, OperadorRelacional, TIPO
 import sys
@@ -38,7 +39,9 @@ reservadas = {
     'trunc'         : 'RTRUNCATE',
     'log'           : 'RLOG',
     'global'        : 'RGLOBAL',
-    'local'         : 'RLOCAL'
+    'local'         : 'RLOCAL',
+    'Array'         : 'RARRAY',
+    'length'        : 'RLENGTH'
 }
 
 tokens = [
@@ -68,7 +71,9 @@ tokens = [
     'IGUAL',
     'DOBLEDPUNTOS',
     'DOSPUNTOS',
-    'COMA'
+    'COMA',
+    'CORA',
+    'CORC'
 ]+list(reservadas.values())
 
 t_PARA          = r'\('
@@ -93,6 +98,8 @@ t_IGUAL         = r'='
 t_DOBLEDPUNTOS  = r'::'
 t_DOSPUNTOS     = r':'
 t_COMA          = r','
+t_CORA          = r'\['
+t_CORC          = r'\]'
 
 def t_DECIMAL(t):
     r'\d+\.\d+'
@@ -148,7 +155,7 @@ def t_CARACTER(t):
 t_ignore = " \t"
 
 def t_newline(t):
-    r'\n+'
+    r'\r\n+'
     t.lexer.lineno += t.value.count("\n")
     
 def t_error(t):
@@ -184,6 +191,11 @@ from Expresiones.Truncate import Truncate
 from Expresiones.Log import Log 
 from Instrucciones.DeclaracionGlobal import DeclaracionGlobal
 from Instrucciones.DeclaracionLocal import DeclaracionLocal
+from Instrucciones.DeclaracionArray import Decla_Array
+from Instrucciones.AsignacionArray import Asignar_Array
+from Instrucciones.Array import Array
+from Instrucciones.Lengtth import Length
+
 
 precedence = (
     ('left','OR'),
@@ -263,6 +275,8 @@ def p_valores_print(t):
 def p_declaracion(t):
     ''' declaracion     : declaracion_instr_completa
                         | declaracion_instr_simple
+                        | decla_arr
+                        | acces
     '''
     t[0] = t[1]
 
@@ -332,12 +346,14 @@ def p_while(t):
 def p_for(t):
     '''for_instr    : RFOR ID RIN expresion DOSPUNTOS expresion instrucciones REND
     '''
-    t[0] = For(t[2],t[4],t[6],t[7],None,t.lineno(1),find_column(input,t.slice[1]))
+    t[0] = For(t[2],t[4],t[6],t[7],None,None,t.lineno(1),find_column(input,t.slice[1]))
 
 def p_for2(t):
     '''for_instr    : RFOR ID RIN expresion instrucciones REND
     '''
-    t[0] = For(t[2],None,None,t[5],t[4],t.lineno(1),find_column(input,t.slice[1]))
+    t[0] = For(t[2],None,None,t[5],t[4],t[4],t.lineno(1),find_column(input,t.slice[1]))
+    
+    
 #break
 def p_break(t):
     '''break_instr  : RBREAK
@@ -415,13 +431,76 @@ def p_declaracion_local2(t):
     t[0] = DeclaracionLocal(t[2],t.lineno(1),find_column(input,t.slice[1]),None,None)
 
 
+def p_decla_array(t):
+    'decla_arr : ID IGUAL element'
+    t[0]=Decla_Array(t[1],t[3],t.lineno(1),find_column(input,t.slice[1]))
+
+def p_elemen(t):
+    'element : element CORA elementos CORC'
+    t[1].append(t[3])
+    t[0]=t[1]
+
+def p_elemen2(t):
+    'element : CORA elementos CORC'
+    t[0]=t[2]
+
+def p_elementos(t):
+    'elementos : elementos COMA elementos2'
+    t[1].append(t[3])
+    t[0]=t[1]
+
+def p_elementos2(t):
+    'elementos : elementos2'
+    t[0]=[t[1]]
+
+def p_elementos3(t):
+    'elementos2 : expresion'
+    t[0]=t[1]
+    
+def p_expresionarray(t):
+    'expresion : CORA elementos CORC'
+    t[0]={"tipo":TIPO.ARREGLO,"valores":t[2]}
+
+def p_accesarr(t):
+    'acces : ID corchetes IGUAL expresion'
+    t[0]=Asignar_Array(t[1],t[2],t[4],t.lineno(1),find_column(input,t.slice[1]))
+
+def p_corchetes(t):
+    'corchetes : corchetes CORA expre CORC'
+    t[1].append(t[3])
+    t[0]=t[1]
+
+def p_corchetes2(t):
+    'corchetes : CORA expre CORC'
+    t[0]=[t[2]]
+
+def p_corchetes3(t):
+    'expre : expresion'
+    t[0]=t[1]
+
+def p_acceso_array(t):
+    '''expresion : ID recurs'''
+    t[0]=Array(str(t[1]),t[2],t.lineno(1),find_column(input,t.slice[1]))
+def p_acceso_array2(t):
+    '''recurs : recurs CORA unico CORC'''
+    t[1].append(t[3])
+    t[0]=t[1]
+def p_acceso_array3(t):
+    '''recurs : CORA unico CORC'''
+    t[0]=[t[2]]
+
+def p_acceso_array4(t):
+    '''unico : expresion'''
+    t[0]=t[1]
+
 #Tipos de variables
 def p_tipo(t) :
     '''tipo     : RINT
                 | RDOUBLE
                 | RCHAR
                 | RSTRING
-                | RBOOLEAN '''
+                | RBOOLEAN 
+                | RARRAY'''
     if t[1] == 'Int64':
         t[0] = TIPO.ENTERO
     elif t[1] == 'Float64':
@@ -432,6 +511,8 @@ def p_tipo(t) :
         t[0] = TIPO.BOOLEANO
     elif t[1] == 'Char':
         t[0] = TIPO.CARACTER
+    elif t[1] == 'Array':
+        t[0] = TIPO.ARREGLO
 
 
 #Operaciones Binarias entre 2 expresiones
@@ -543,6 +624,14 @@ def p_expresion_truncate(t):
 def p_expresion_log(t):
     'expresion : RLOG PARA expresion COMA expresion PARC'
     t[0] = Log(t[3],t[5],t.lineno(1),find_column(input,t.slice[1]))
+
+def p_expresion_length(t):
+    'expresion : RLENGTH PARA ID element PARC'
+    t[0] = Length(t[3],t[4],t.lineno(1),find_column(input,t.slice[1]))
+
+def p_expresion_length(t):
+    'expresion : RLENGTH PARA ID PARC'
+    t[0] = Length(t[3],[],t.lineno(1),find_column(input,t.slice[1]))
 
 import ply.yacc as yacc
 parser = yacc.yacc()
@@ -724,61 +813,61 @@ def crearNativas(ast):
     float = Float(nombre,parametros,instrucciones,-1,-1)
     ast.addFuncion(float)
 
-f = open("./src/entrada.txt", "r")
-entrada = f.read()
+#f = open("./src/entrada.txt", "r")
+#entrada = f.read()
 
 from TS.Arbol import Arbol
 from TS.TablaSimbolos import TablaSimbolos
 from Abstract.NodoAST import NodoAST
-instrucciones = parse(entrada)
-ast = Arbol(instrucciones)
 
-TSGlobal = TablaSimbolos(None,"GLOBAL")
-ast.setTSglobal(TSGlobal)
-TSGlobal.limpiarTabla()
-crearNativas(ast)
 
-for error in errores:
-    ast.getExcepciones().append(error)
-    ast.updateConsola(error.toString())
-    
-#Primera pasada para poder guardar las funciones existentes
-for instruccion in ast.getInstrucciones():
-    if isinstance(instruccion, Funcion):
-        TSGlobal.setTSimbolos(instruccion)
-        ast.addFuncion(instruccion)
+#print(ast.getConsola())
+def Analizar(entrada):
+    instrucciones = parse(entrada)
+    ast = Arbol(instrucciones)
 
-    if isinstance(instruccion,Declaracion):
-        ast.addGlobal(instruccion)
-#Segunda pasada para realizar todas las acciones excepto las declaraciones de funcones que ya se hicieron en la primera pasada
-for instruccion in ast.getInstrucciones():
-    if not isinstance(instruccion,Funcion):
-        value = instruccion.interpretar(ast,TSGlobal)
-        if isinstance(value, Excepcion) :
-            ast.getExcepciones().append(value)
-            ast.updateConsola(value.toString()) 
+    TSGlobal = TablaSimbolos(None,"GLOBAL")
+    ast.setTSglobal(TSGlobal)
+    TSGlobal.limpiarTabla()
+    crearNativas(ast)
 
-init = NodoAST("RAIZ")
-instr = NodoAST("INSTRUCCIONES")
+    for error in errores:
+        ast.getExcepciones().append(error)
+        ast.updateConsola(error.toString())
+        
+    #Primera pasada para poder guardar las funciones existentes
+    for instruccion in ast.getInstrucciones():
+        if isinstance(instruccion, Funcion):
+            TSGlobal.setTSimbolos(instruccion)
+            ast.addFuncion(instruccion)
 
-for instruccion in ast.getInstrucciones():
-    instr.agregarHijoNodo(instruccion.getNodo())
+        if isinstance(instruccion,Declaracion):
+            ast.addGlobal(instruccion)
+    #Segunda pasada para realizar todas las acciones excepto las declaraciones de funcones que ya se hicieron en la primera pasada
+    for instruccion in ast.getInstrucciones():
+        if not isinstance(instruccion,Funcion):
+            value = instruccion.interpretar(ast,TSGlobal)
+            if isinstance(value, Excepcion) :
+                ast.getExcepciones().append(value)
+                ast.updateConsola(value.toString()) 
 
-init.agregarHijoNodo(instr)
-graph = ast.getDot(init)
-dirname = os.path.dirname(__file__)
-direcc = os.path.join(dirname, 'ast.dot')
-file = open(direcc, "w+", encoding="utf-8")
-file.write(graph)
-file.close()
-os.chdir(dirname)
-os.system('dot -T svg -o ast.svg ast.dot')
+    init = NodoAST("INICIO")
+    instr = NodoAST("INSTRUCCIONES")
 
-print(ast.getConsola())
-#def Analizar(entrada):
+    for instruccion in ast.getInstrucciones():
+        instr.agregarHijoNodo(instruccion.getNodo())
 
-    #ReporteTabla(ast.getExcepciones())
-    #tabla = TSGlobal.obtenerTSimbolos()
-    #ReporteTSimbolos(tabla)
-    #return ast.getConsola()
+    init.agregarHijoNodo(instr)
+    graph = ast.getDot(init)
+    dirname = os.path.dirname(__file__)
+    direcc = os.path.join(dirname, 'ast.dot')
+    file = open(direcc, "w+", encoding="utf-8")
+    file.write(graph)
+    file.close()
+    os.chdir(dirname)
+    os.system('dot -T svg -o ast.svg ast.dot')
+    ReporteTabla(ast.getExcepciones())
+    tabla = TSGlobal.obtenerTSimbolos()
+    ReporteTSimbolos(tabla)
+    return ast.getConsola()
     

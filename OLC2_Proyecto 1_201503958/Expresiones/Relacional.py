@@ -15,9 +15,17 @@ class Relacional(Instruccion):
 
     
     def interpretar(self, tree, table):
-        izq = self.OperacionIzq.interpretar(tree, table)
+        if self.OperacionIzq.tipo == TIPO.ARREGLO:
+            aux = self.OperacionIzq.interpretar(tree, table)
+            izq = aux.valor
+        else:
+            izq = self.OperacionIzq.interpretar(tree, table)
         if isinstance(izq, Excepcion): return izq
-        der = self.OperacionDer.interpretar(tree, table)
+        if self.OperacionDer.tipo == TIPO.ARREGLO:
+            aux = self.OperacionDer.interpretar(tree, table)
+            der = aux.valor
+        else:
+            der = self.OperacionDer.interpretar(tree, table)
         if isinstance(der, Excepcion): return der
         
         #--------------------------------------------MENOR QUE---------------------------------------------------------------
@@ -126,7 +134,6 @@ class Relacional(Instruccion):
             return float(val)
         elif tipo == TIPO.BOOLEANO:
             return bool(val)
-        #END
         return str(val)
     #END
 #END

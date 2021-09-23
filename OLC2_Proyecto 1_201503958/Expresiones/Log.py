@@ -28,4 +28,7 @@ class Log(Instruccion):
 
     def getNodo(self):
         nodo = NodoAST("LOG")
+        nodo.agregarHijo(self.tipo)
+        nodo.agregarHijoNodo(self.expresion1.getNodo())
+        nodo.agregarHijoNodo(self.expresion2.getNodo())
         return nodo

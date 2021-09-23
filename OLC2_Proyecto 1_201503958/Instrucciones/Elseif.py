@@ -3,6 +3,8 @@ from TS.Tipo import TIPO
 from TS.Excepcion import Excepcion
 from TS.TablaSimbolos import TablaSimbolos
 from Abstract.NodoAST import NodoAST
+
+
 class Elseif(Instruccion):
     def __init__(self,condicion,instrucciones, fila, columna):
         self.condicion = condicion
